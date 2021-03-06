@@ -4,16 +4,24 @@ import { Button, Icon, Input } from 'react-native-elements'
 
 export default function RegisterForm() {
     const [showPassword, setShowPassword] = useState(false)     //State para controlar si se muestra o no la contraseña al hacer presion sobre el icono eye-outline
+    const [formData, setFormData] = useState(defaultFormValues())
+
+    const onChange = (e, type) =>{
+        setFormData({...formData, [type]: e.nativeEvent.text})  //Hago que mi type sea dinamico con [type]
+    }
 
     return (
         <View style={styles.form}>
             <Input
-                containerStyle={styles.input}
+                containerStyle={styles.input}                  //Agreamos un evento al ingresar el password con el onChange
                 placeholder="Ingresa tu email..."
+                onChange={(e) => onChange(e, "email")}         //Llamamos a nuestra funcion onChange para ir  almacenados sus valores de manera dinamica
+                keyboardType="email-address"
             />
             <Input
                 containerStyle={styles.input}
                 placeholder="Ingresa tu contraseña..."
+                onChange={(e) => onChange(e, "password")}
                 password ={true}
                 secureTextEntry={!showPassword}
                 rightIcon={
@@ -28,6 +36,7 @@ export default function RegisterForm() {
             <Input
                 containerStyle={styles.input}
                 placeholder="Confirma tu contraseña..."
+                onChange={(e) => onChange(e, "confirm")}
                 password ={true}
                 secureTextEntry={!showPassword}
                 rightIcon={
@@ -43,9 +52,18 @@ export default function RegisterForm() {
                 title="Registrar Nuevo Usuario"
                 containerStyle={styles.btnContainer}
                 buttonStyle={styles.btn}
+                onPress ={() =>console.log(formData)}
             />
         </View>
     )
+}
+
+const defaultFormValues = () => {                           // inicializamos nuestro state formData en vacio a traves de esta funcio tipo flecha
+    return {
+        email : "",
+        password : "",
+        confirm : ""
+    }
 }
 
 const styles = StyleSheet.create({
