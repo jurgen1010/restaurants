@@ -2,8 +2,13 @@ import React, { useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { Button, Icon, Input } from 'react-native-elements'
 import { size } from 'lodash'
+import { useNavigation } from '@react-navigation/native'
 
 import { validateEmail } from '../../utils/helpers'
+import { registerUser } from '../../utils/actions'
+import Loading from '../Loading'
+
+
 
 export default function RegisterForm() {
     const [showPassword, setShowPassword] = useState(false)     //State para controlar si se muestra o no la contraseña al hacer presion sobre el icono eye-outline
@@ -11,18 +16,30 @@ export default function RegisterForm() {
     const [errorEmail, setErrorEmail] = useState("")
     const [errorPassword, setErrorPassword] = useState("")
     const [errorConfirm, setErrorConfirm] = useState("")
+    const [loading, setLoading] = useState(false)
+
+    const navigation = useNavigation()
 
     const onChange = (e, type) =>{
         setFormData({...formData, [type]: e.nativeEvent.text})  //Hago que mi type sea dinamico con [type]
-        
     }
 
-    const registerUser = () => {
+    const doRegisterUser = async() => {
         if (!validateData()) {
             return;
         }
 
-        console.log("Fuck Yeahh!")
+        setLoading(true)
+        const result = await registerUser(formData.email, formData.password)
+        setLoading(false)
+
+
+        if (!result.statusResponse) {
+           setErrorEmail(result.error) 
+           return
+        }
+
+        navigation.navigate("account")
     }
 
     const validateData = () => {
@@ -103,7 +120,11 @@ export default function RegisterForm() {
                 title="Registrar Nuevo Usuario"
                 containerStyle={styles.btnContainer}
                 buttonStyle={styles.btn}
-                onPress ={() => registerUser()}
+                onPress ={() => doRegisterUser()}
+            />
+            <Loading
+                isVisible={loading}
+                text="Creando cuenta..."
             />
         </View>
     )
