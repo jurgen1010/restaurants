@@ -2,18 +2,26 @@ import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { Avatar } from 'react-native-elements'
 
+import { loadImageFromGallery } from '../../utils/helpers'
+
 export default function InfoUser({ user }) {    //Hacemos detructuring del parametro enviado por props desde UserLogged
-    console.log(user)
+    
+    const changePhoto = async()=>{
+        console.log("Change Photo!")
+        const result = await loadImageFromGallery([1, 1])   //Relacion 1, 1 es el mismo ancho con el mismo alto es decir cuadrada
+        console.log(result)
+    }
+
     return (
         <View style={styles.container}>
             <Avatar
                 rounded // Redondear es equivalante rounded = {true}
                 size="large"
-                containerStyle={styles.avatar}
+                onPress={changePhoto}
                 source={
                     user.photoURL
-                    ? {uri: photoURL}
-                    : require("../../assets/default-avatar-profile.jpg")
+                        ? {uri: photoURL}
+                        : require("../../assets/default-avatar-profile.jpg")
                 } 
             />
             <View style= {styles.infoUser}> 
