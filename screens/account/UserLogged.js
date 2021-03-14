@@ -17,10 +17,12 @@ export default function UserLogged() {
     const [loading, setLoading] = useState(false)
     const [loadingText, setLoadingText] = useState("")
     const [user, setUser] = useState(null)
+    const [reloadUser, setReloadUser] = useState(false)
 
     useEffect(() => {
         setUser(getCurrentUser())    //Siempre que cargue la pagina haremos llamado al usuario actualmente loggeado
-    }, [])
+        setReloadUser(false)
+    }, [reloadUser])
 
     return (
         <View style ={styles.container}>
@@ -35,6 +37,7 @@ export default function UserLogged() {
                         <AccountOptions
                             user={user}
                             toastRef={toastRef}
+                            setReloadUser={setReloadUser} //Enviamos en status de reloadUser para que cada que cambie nos refresque la pantalla de UserLogged y no pinte las actualizaciones
                         />
                     </View>
                 )  

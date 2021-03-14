@@ -1,11 +1,71 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { map } from 'lodash';
 import { Icon, ListItem } from 'react-native-elements';
 
-export default function AccountOptions({ user , toastRef }) {
-    const  menuOptions = generateOptions();
+import Modal from '../Modal';
+import ChangeDisplayNameForm from './ChangeDisplayNameForm';
 
+export default function AccountOptions({ user , toastRef, setReloadUser }) {
+
+    const [showModal, setShowModal] = useState(false)
+    const [renderComponent, setRenderComponent] = useState(null)
+
+    const generateOptions = () => {
+        return[
+            {
+                title: "Cambiar Nombres y Apellidos",
+                inconNameLeft: "account-circle",
+                iconnColorLeft: "#a7bfd3",
+                inconNameRight: "chevron-right",
+                iconnColorRight: "#a7bfd3",
+                onPress: ()=> selectedComponent("displayName")  //Funcion tipo flecha para manejar el evento onPress de cada opcion 
+            },{
+                title: "Cambiar Email",
+                inconNameLeft: "at",
+                iconnColorLeft: "#a7bfd3",
+                inconNameRight: "chevron-right",
+                iconnColorRight: "#a7bfd3",
+                onPress: ()=> selectedComponent("email")
+            },{
+                title: "Cambiar Contraseña",
+                inconNameLeft: "lock-reset",
+                iconnColorLeft: "#a7bfd3",
+                inconNameRight: "chevron-right",
+                iconnColorRight: "#a7bfd3",
+                onPress: ()=> selectedComponent("password")
+    
+            },
+        ]
+    }
+
+    const selectedComponent = (key) =>{
+        switch (key) {
+            case "displayName":
+                setRenderComponent(
+                    <ChangeDisplayNameForm
+                        displayName={user.displayName}      //Le enviamos estas props para que ChangeDisplayNameForm pueda pintar el form de cambiar displayName
+                        setShowModal={setShowModal}
+                        toastRef={toastRef}
+                        setReloadUser={setReloadUser}  //Al mismo modo le enviamos el param de status setReloadUser para estar refrescando la pantalla y poder visualizar los cambios
+                    />
+                )
+                break;
+            case "email":
+                setRenderComponent(
+                    <Text>email</Text>
+                )
+                break;
+            case "password":
+                setRenderComponent(
+                    <Text>password</Text>
+                )
+                break;
+        }
+        setShowModal(true)
+    }
+
+    const  menuOptions = generateOptions()  //Para poder compilar mis opciones de menu
 
     return (
         <View>
@@ -14,6 +74,7 @@ export default function AccountOptions({ user , toastRef }) {
                     <ListItem
                         key={index}
                         style={styles.menuItem}
+                        onPress={menu.onPress}        //Hacemos llamado de la funcion tipo flecha declarada en nuestra funcion generateOptions
                     >
                         <Icon
                             type="material-community"
@@ -31,32 +92,13 @@ export default function AccountOptions({ user , toastRef }) {
                     </ListItem>
                 ))
             }
+            <Modal isVisible={showModal} setVisible={setShowModal}>
+                {
+                    renderComponent    //renderComponent va contener todo el estado que yo cargue en la funcion selectedComponent de manera dinamica
+                }
+            </Modal>
         </View>
     )
-}
-
-function generateOptions() {
-    return[
-        {
-            title: "Cambiar Nombres y Apellidos",
-            inconNameLeft: "account-circle",
-            iconnColorLeft: "#a7bfd3",
-            inconNameRight: "chevron-right",
-            iconnColorRight: "#a7bfd3"
-        },{
-            title: "Cambiar Email",
-            inconNameLeft: "at",
-            iconnColorLeft: "#a7bfd3",
-            inconNameRight: "chevron-right",
-            iconnColorRight: "#a7bfd3"
-        },{
-            title: "Cambiar Contraseña",
-            inconNameLeft: "lock-reset",
-            iconnColorLeft: "#a7bfd3",
-            inconNameRight: "chevron-right",
-            iconnColorRight: "#a7bfd3"
-        },
-    ]
 }
 
 const styles = StyleSheet.create({
