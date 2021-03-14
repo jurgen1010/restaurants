@@ -8,6 +8,7 @@ import Toast from 'react-native-easy-toast'
 import { closeSession, getCurrentUser } from '../../utils/actions'
 import Loading from '../../components/Loading'
 import InfoUser from '../../components/account/InfoUser'
+import AccountOptions from '../../components/account/AccountOptions'
 
 export default function UserLogged() {
     const toastRef = useRef()
@@ -23,10 +24,21 @@ export default function UserLogged() {
 
     return (
         <View style ={styles.container}>
-            {
-                user && <InfoUser user={user}/>  // Le enviaremos como parametro el user loggeado a InfoUser en caso de que exista un user loggeado
+            {// Le enviaremos como parametro el userloggeado , loading y el texto del loading  a InfoUser en caso de que exista un user loggeado 
+                user && (
+                    <View>
+                        <InfoUser 
+                            user={user} 
+                            setLoading={setLoading} 
+                            setLoadingText={setLoadingText}
+                        />
+                        <AccountOptions
+                            user={user}
+                            toastRef={toastRef}
+                        />
+                    </View>
+                )  
             }  
-            <Text>Account Options</Text>
             <Button
                 title="Cerrar Sesión"
                 buttonStyle={styles.btnCloseSession}
@@ -37,7 +49,7 @@ export default function UserLogged() {
                 }}
             />
             <Toast ref={toastRef} position="center" opacity={0.9}/>
-            <Loading isVisible={loading} Text={loadingText}/>
+            <Loading isVisible={loading} text={loadingText}/>
         </View>
     )
 }

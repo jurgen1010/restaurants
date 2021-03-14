@@ -2,6 +2,8 @@ import { firebaseApp } from './firebase'
 import firebase from 'firebase'
 import 'firebase/firestore'
 
+import { fileToBlob } from './helpers'
+
 const db = firebase.firestore(firebaseApp)
 
 export const isUserLogged = () => { //Para validar si el usuario esta o no loggeado
@@ -42,3 +44,28 @@ export const loginWithEmailAndPassword = async(email, password) => {
     return result
 }
 
+export const uploadImage = async(image, path, name)=>{
+    const result = {statusResponse: false, error: null, url: null}  //Asumimos siempre un estado inicial de la respuesta que obtendremos
+    const ref = firebase.storage().ref(path).child(name)            //La forma en como referenciamos la imagen a subir como blob
+    const blob = await fileToBlob(image)                            //Usamos nuestra utilidad para convertir la imagen a un blob
+    try {
+        await ref.put(blob)                                        //La forma en como subimos la imagen 
+        const url = await firebase.storage().ref(`${path}/${name}`).getDownloadURL()   //La forma en como obtenemos la ruta de como nos quedo guardada la imagen, ademas usamos el template string `${path}/${name}`
+        result.statusResponse = true
+        result.url = url
+    } catch (error) {
+        result.error = error
+    }
+    return result
+}
+
+export const updateProfile = async(data) => {
+    const result = { statusResponse: true, error: null }
+    try {
+        await firebase.auth().currentUser.updateProfile(data)    //La forma en como actualizamos la informacion del perfil actual con la data que le enviemos
+    } catch (error) {
+        result.statusResponse = false
+        result.error = error
+    }
+    return result
+}

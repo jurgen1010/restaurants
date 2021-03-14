@@ -28,3 +28,9 @@ export const loadImageFromGallery = async(array) =>{
     response.image = result.uri  //La url donde nos queda la imagen
     return response
 }
+
+export const fileToBlob = async(path) =>{
+     const file = await fetch(path)        //Esperamos a que nos traiga la imagen y hacemos un fetch para que nos deje la imagen en una ruta local 
+     const blob = await file.blob()
+     return blob
+}
