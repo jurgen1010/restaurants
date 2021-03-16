@@ -4,8 +4,7 @@ import { Button, Icon, Input } from 'react-native-elements'
 import { isEmpty, size } from 'lodash'
 
 
-import { validateEmail } from '../../utils/helpers'
-import { reauthenticate, updateEmail } from '../../utils/actions'
+import { reauthenticate,  updatePassword } from '../../utils/actions'
 
 
 export default function ChangePasswordForm({ setShowModal, toastRef }) {
@@ -23,25 +22,24 @@ export default function ChangePasswordForm({ setShowModal, toastRef }) {
             return
         }
 
-        // setLoading(true)
-        // const resultreauthenticate = await reauthenticate(password)
-        // if (!resultreauthenticate.statusResponse) {
-        //     setLoading(false)
-        //     setErrorPassword("Contreseña incorrecta.")
-        //     return
-        // }
+        setLoading(true)
+        const resultreauthenticate = await reauthenticate(currentPassword)
+        if (!resultreauthenticate.statusResponse) {
+            setLoading(false)
+            setErrorCurrentPassword("Contreseña incorrecta.")
+            return
+        }
 
-        // const resultUpdateEmail = await updateEmail(newEmail)
-        // setLoading(false)
+        const resultUpdatePassword = await updatePassword(newPassword)
+        setLoading(false)
 
-        // if (!resultUpdateEmail.statusResponse) {
-        //     setErrorEmail("No se puede cambiar por este correo ya esta en uso por otro ususario.")
-        //     return
-        // }
+        if (!resultUpdatePassword.statusResponse) {
+            setErrorNewPassword("Hubo un problema cambiando la contraseña, por favor intente más tarde.")
+            return
+        }
 
-        // setReloadUser(true)   //Cambiamos el estado ReloadUser para refrescar la informacion en pantalla
-        // toastRef.current.show("Se ha actualizado el email", 3000)  //Mostramos un toast indicando que se actualizaron los datos
-        // setShowModal(false)   //Finalmente cerramos el modal de manera automatica en caso de ser exitoso el cambio de nombres
+        toastRef.current.show("Se ha actualizado la contraseña", 3000)  //Mostramos un toast indicando que se actualizaron los datos
+        setShowModal(false)   //Finalmente cerramos el modal de manera automatica en caso de ser exitoso el cambio de nombres
     }
 
 
