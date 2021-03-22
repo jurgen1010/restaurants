@@ -1,10 +1,13 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import { StyleSheet, Dimensions, Text, View, ScrollView, Alert } from 'react-native'
 import { Avatar, Button, Icon, Input, Image } from 'react-native-elements'
 import CountryPicker from 'react-native-country-picker-modal'
 import { map, size, filter } from "lodash";
+import MapView from 'react-native-maps';
 
-import { loadImageFromGallery } from '../../utils/helpers';
+import  Modal  from "../../components/Modal";
+
+import { getCurrentLocation, loadImageFromGallery } from '../../utils/helpers';
 
 const widthScreen = Dimensions.get("window").width        //La forma en como obtengo las dimensiones de la pantalla
 
@@ -16,6 +19,8 @@ export default function AddRestaurantForm({ toastRef, setLoading, navigation }) 
     const [errorAddress, setErrorAddress] = useState(null)
     const [errorPhone, setErrorPhone] = useState(null)
     const [imagesSelected, setiImagesSelected] = useState([])
+    const [isVisibleMap, setIsVisibleMap] = useState(false)
+    const [locationRestaurant, setLocationRestaurant] = useState(null)
     
     const addRestaurant = () =>{
         console.log(formData)
@@ -35,6 +40,8 @@ export default function AddRestaurantForm({ toastRef, setLoading, navigation }) 
                 errorEmail={errorEmail}
                 errorAddress={errorAddress}
                 errorPhone={errorPhone}
+                setIsVisibleMap={setIsVisibleMap}
+                locationRestaurant={locationRestaurant}
             />
             <UploadImage
                 toastRef={toastRef}
@@ -46,7 +53,72 @@ export default function AddRestaurantForm({ toastRef, setLoading, navigation }) 
                 onPress={addRestaurant}                 //Cuando el onPress no lleva parametros me ahorro la funcion tipo flecha
                 buttonStyle={styles.btnAddRestaurant}
             />
+            <MapRestaurant
+                isVisibleMap={isVisibleMap}
+                setIsVisibleMap={setIsVisibleMap}
+                locationRestaurant={locationRestaurant}
+                setLocationRestaurant={setLocationRestaurant}
+                toastRef={toastRef}
+            />
         </ScrollView>
+    )
+}
+
+function MapRestaurant ({ isVisibleMap, setIsVisibleMap, locationRestaurant, setLocationRestaurant, toastRef }){
+    const [newRegion, setNewRegion] = useState(null)
+
+    useEffect(() => {
+        (async() =>{                                                      //Para realizar un autollamado asincrono usamos los (async)()
+            const response = await getCurrentLocation()
+            if (response.status) {
+                setNewRegion(response.location)
+            }
+        })()                                       
+    }, [])
+
+    const confirmLocation = () => {
+        setLocationRestaurant(newRegion)
+        toastRef.current.show("Localización guardada correctamente.", 3000)
+        setIsVisibleMap(false)
+    }
+
+    return(
+        <Modal isVisible={isVisibleMap} setVisible={setIsVisibleMap}>
+            <View>
+                {
+                    newRegion && (
+                        <MapView
+                            style={styles.mapStyle}
+                            initialRegion={newRegion}
+                            showsUserLocation={true}
+                            onRegionChange={(region) =>setNewRegion(region)}            //Cuando me cambien la location la guardaremos en el estado setLocationRestaurant
+                        >
+                            <MapView.Marker
+                                coordinate={{
+                                    latitude: newRegion.latitude,
+                                    longitude: newRegion.longitude
+                                }}
+                                draggable                             //El usuario podra cambiar la posicion del marcador
+                            />
+                        </MapView>
+                    )
+                }
+                <View  style={styles.viewMapBtn}>
+                    <Button
+                        title="Guardar Ubicación"
+                        containerStyle={styles.viewMapBtnContainerSave}
+                        buttonStyle={styles.viewMapBtnSave}
+                        onPress={confirmLocation}                                   //No hacemos () porque no estamos involucrando parametros
+                    />
+                    <Button
+                        title="Cancelar Ubicación"
+                        containerStyle={styles.viewMapBtnContainerCancel}
+                        buttonStyle={styles.viewMapBtnCancel}
+                        onPress={()=> setIsVisibleMap(false)}
+                    />
+                </View>
+            </View>
+        </Modal>
     )
 }
 
@@ -132,7 +204,17 @@ function UploadImage( { toastRef, imagesSelected, setiImagesSelected } ){  //Cre
     )
 }
 
-function FormAdd({ formData, setFormData, errorName, errorDescription, errorEmail, errorAddress, errorPhone }){              //Todos los componentes por obligacion deben comentar por mayuscula
+function FormAdd({ 
+    formData, 
+    setFormData,
+     errorName, 
+     errorDescription, 
+     errorEmail, 
+     errorAddress, 
+     errorPhone, 
+     setIsVisibleMap, 
+     locationRestaurant 
+}){                                                         //Todos los componentes por obligacion deben comentar por mayuscula
     const [country, setCountry] = useState("CO")           //Por defecto Colombia cog interacional de dos digitos
     const [callingCode, setCallingCode] = useState("57")   //Codigo de llamada
     const [phone, setPhone] = useState("")
@@ -154,6 +236,12 @@ function FormAdd({ formData, setFormData, errorName, errorDescription, errorEmai
                 defaultValue={formData.address}
                 onChange={(e) => onChange(e, "address")}    
                 errorMessage={errorAddress}
+                rightIcon={{
+                    type: "material-community",
+                    name: "google-maps",
+                    color: locationRestaurant ? "#713853" : "#c2c2c2",
+                    onPress: ()=> setIsVisibleMap (true)
+                }}
             />
             <Input
                 keyboardType="email-address"
@@ -258,5 +346,26 @@ const styles = StyleSheet.create({
         alignItems: "center",
         height: 200,
         marginBottom: 20
+    },
+    mapStyle: {
+        width: "100%",
+        height: 400
+    },
+    viewMapBtn: {
+        flexDirection: "row",
+        justifyContent: "center",
+        marginTop: 10
+    },
+    viewMapBtnContainerCancel: {
+        paddingLeft: 5
+    },
+    viewMapBtnContainerSave: {
+        paddingRight: 5
+    },
+    viewMapBtnCancel: {
+        backgroundColor: "#713853"
+    },
+    viewMapBtnSave: {
+        backgroundColor: "#9cab3c"
     }
 })
