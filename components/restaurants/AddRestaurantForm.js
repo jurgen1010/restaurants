@@ -1,7 +1,8 @@
 import React, {useState} from 'react'
 import { StyleSheet, Text, View, ScrollView } from 'react-native'
-import { Button, Icon, Input } from 'react-native-elements'
+import { Avatar, Button, Icon, Input } from 'react-native-elements'
 import CountryPicker from 'react-native-country-picker-modal'
+import { map, size } from "lodash";
 
 export default function AddRestaurantForm({ toastRef, setLoading, navigation }) {
     const [formData, setFormData] = useState(defaultFormValues())
@@ -10,6 +11,7 @@ export default function AddRestaurantForm({ toastRef, setLoading, navigation }) 
     const [errorEmail, setErrorEmail] = useState(null)
     const [errorAddress, setErrorAddress] = useState(null)
     const [errorPhone, setErrorPhone] = useState(null)
+    const [imagesSelected, setiImagesSelected] = useState([])
     
     const addRestaurant = () =>{
         console.log(formData)
@@ -27,7 +29,11 @@ export default function AddRestaurantForm({ toastRef, setLoading, navigation }) 
                 errorAddress={errorAddress}
                 errorPhone={errorPhone}
             />
-            <UploadImage/>                   
+            <UploadImage
+                toastRef={toastRef}
+                imagesSelected={imagesSelected}
+                setiImagesSelected={setiImagesSelected}
+            />                   
             <Button
                 title="Crear Restaurante."
                 onPress={addRestaurant}                 //Cuando el onPress no lleva parametros me ahorro la funcion tipo flecha
@@ -37,18 +43,31 @@ export default function AddRestaurantForm({ toastRef, setLoading, navigation }) 
     )
 }
 
-function UploadImage(){  //Creamos un nuevo componente donde vamos a cargar la imagen de restaurante, siempre inicia por mayuscula
-    return (   //Cuando usar o no las corchetes { } (DUDA)
+function UploadImage( { toastRef, imagesSelected, setiImagesSelected } ){  //Creamos un nuevo componente donde vamos a cargar la imagen de restaurante, siempre inicia por mayuscula
+    return (                                                               //Cuando usar o no las corchetes { } (DUDA)
         <ScrollView
-            horizontal  //Para decirle a el scroll que se va comportar de forma horizontal
+            horizontal                                                     //Para decirle a el scroll que se va comportar de forma horizontal
             style={styles.viewImage}
         >
-            <Icon
-                type="material-community"
-                name="camera"
-                color="#7a7a7a"
-                containerStyle={styles.containerIcon}
-            />
+            {
+                size(imagesSelected) < 10 && (                             //Nos pintara el icono de imagenes si es menor a 10
+                    <Icon
+                        type="material-community"
+                        name="camera"
+                        color="#7a7a7a"
+                        containerStyle={styles.containerIcon}
+                    />                   
+                )
+            }
+            {
+                map(imagesSelected, (imageRestaurant, index) => (      //Usamos ( ) porque tenemo un retrono implicito        
+                    <Avatar
+                        key={index}
+                        style={styles.miniatureStyle}
+                        source={{ uri : imageRestaurant }}
+                    />
+                ))
+            }
         </ScrollView>
     )
 }
@@ -169,5 +188,10 @@ const styles = StyleSheet.create({
         height: 70,
         width: 70,
         backgroundColor: "#e3e3e3"
+    },
+    miniatureStyle:{
+        width: 70,
+        height: 70,
+        marginRight: 10
     }
 })
