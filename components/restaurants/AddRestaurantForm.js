@@ -4,6 +4,8 @@ import { Avatar, Button, Icon, Input } from 'react-native-elements'
 import CountryPicker from 'react-native-country-picker-modal'
 import { map, size } from "lodash";
 
+import { loadImageFromGallery } from '../../utils/helpers';
+
 export default function AddRestaurantForm({ toastRef, setLoading, navigation }) {
     const [formData, setFormData] = useState(defaultFormValues())
     const [errorName, setErrorName] = useState(null)
@@ -44,6 +46,16 @@ export default function AddRestaurantForm({ toastRef, setLoading, navigation }) 
 }
 
 function UploadImage( { toastRef, imagesSelected, setiImagesSelected } ){  //Creamos un nuevo componente donde vamos a cargar la imagen de restaurante, siempre inicia por mayuscula
+    
+    const imageSelect = async() =>{                                        //Asincrono ya que toma un poco en cargar la imagen
+        const response = await loadImageFromGallery([4, 3])                 //[4,3] es una relacion mas rectangular, horizontalmente sea un 25% mas largo que verticalmente
+        if (!response.status) {
+            toastRef.current.show("No has seleccionado ninguna imagen.", 3000)
+            return
+        }
+
+        setiImagesSelected([...imagesSelected, response.image])            //Finalmente guardamos la imagen seleccionada en el estado imagesSelected
+    }
     return (                                                               //Cuando usar o no las corchetes { } (DUDA)
         <ScrollView
             horizontal                                                     //Para decirle a el scroll que se va comportar de forma horizontal
@@ -56,6 +68,7 @@ function UploadImage( { toastRef, imagesSelected, setiImagesSelected } ){  //Cre
                         name="camera"
                         color="#7a7a7a"
                         containerStyle={styles.containerIcon}
+                        onPress={imageSelect}
                     />                   
                 )
             }
