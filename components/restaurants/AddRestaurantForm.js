@@ -1,10 +1,12 @@
 import React, {useState} from 'react'
-import { StyleSheet, Text, View, ScrollView, Alert } from 'react-native'
-import { Avatar, Button, Icon, Input } from 'react-native-elements'
+import { StyleSheet, Dimensions, Text, View, ScrollView, Alert } from 'react-native'
+import { Avatar, Button, Icon, Input, Image } from 'react-native-elements'
 import CountryPicker from 'react-native-country-picker-modal'
 import { map, size, filter } from "lodash";
 
 import { loadImageFromGallery } from '../../utils/helpers';
+
+const widthScreen = Dimensions.get("window").width        //La forma en como obtengo las dimensiones de la pantalla
 
 export default function AddRestaurantForm({ toastRef, setLoading, navigation }) {
     const [formData, setFormData] = useState(defaultFormValues())
@@ -21,7 +23,10 @@ export default function AddRestaurantForm({ toastRef, setLoading, navigation }) 
     }
 
     return (
-        <View style={styles.viewContainer}>
+        <ScrollView style={styles.viewContainer}>
+            <ImageRestaurant
+                imageRestaurant={imagesSelected[0]}      //La primera imagen es la que le colocaremos a nuestro restaurante
+            />
             <FormAdd
                 formData={formData}                    //Le pasamos el elemento 
                 setFormData={setFormData}              //Le pasamos la propiedad tambien para que el pueda setear los datos 
@@ -40,6 +45,21 @@ export default function AddRestaurantForm({ toastRef, setLoading, navigation }) 
                 title="Crear Restaurante."
                 onPress={addRestaurant}                 //Cuando el onPress no lleva parametros me ahorro la funcion tipo flecha
                 buttonStyle={styles.btnAddRestaurant}
+            />
+        </ScrollView>
+    )
+}
+
+function ImageRestaurant({ imageRestaurant }){
+    return(
+        <View style={styles.viewPhoto}>
+            <Image
+                style={{ width: widthScreen, height: 200}}                            //La forma en como puedo puedo definir el estilo de componente dentro del mismo.
+                source={
+                    imageRestaurant
+                        ? { uri: imageRestaurant}
+                        : require("../../assets/no-image.png")
+                }
             />
         </View>
     )
@@ -233,5 +253,10 @@ const styles = StyleSheet.create({
         width: 70,
         height: 70,
         marginRight: 10
+    },
+    viewPhoto: {
+        alignItems: "center",
+        height: 200,
+        marginBottom: 20
     }
 })
