@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
-import { StyleSheet, Text, View } from 'react-native'
-import { Button, Input } from 'react-native-elements'
+import { StyleSheet, Text, View, ScrollView } from 'react-native'
+import { Button, Icon, Input } from 'react-native-elements'
 import CountryPicker from 'react-native-country-picker-modal'
 
 export default function AddRestaurantForm({ toastRef, setLoading, navigation }) {
@@ -26,13 +26,30 @@ export default function AddRestaurantForm({ toastRef, setLoading, navigation }) 
                 errorEmail={errorEmail}
                 errorAddress={errorAddress}
                 errorPhone={errorPhone}
-            />                   
+            />
+            <UploadImage/>                   
             <Button
                 title="Crear Restaurante."
                 onPress={addRestaurant}                 //Cuando el onPress no lleva parametros me ahorro la funcion tipo flecha
                 buttonStyle={styles.btnAddRestaurant}
             />
         </View>
+    )
+}
+
+function UploadImage(){  //Creamos un nuevo componente donde vamos a cargar la imagen de restaurante, siempre inicia por mayuscula
+    return (   //Cuando usar o no las corchetes { } (DUDA)
+        <ScrollView
+            horizontal  //Para decirle a el scroll que se va comportar de forma horizontal
+            style={styles.viewImage}
+        >
+            <Icon
+                type="material-community"
+                name="camera"
+                color="#7a7a7a"
+                containerStyle={styles.containerIcon}
+            />
+        </ScrollView>
     )
 }
 
@@ -139,5 +156,18 @@ const styles = StyleSheet.create({
         margin: 20,
         backgroundColor: "#713853"
 
+    },
+    viewImage: {
+        flexDirection: "row",
+        marginHorizontal: 20,
+        marginTop:30
+    },
+    containerIcon: {
+        alignItems: "center",
+        justifyContent: "center",
+        marginRight: 10,
+        height: 70,
+        width: 70,
+        backgroundColor: "#e3e3e3"
     }
 })
