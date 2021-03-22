@@ -1,8 +1,8 @@
 import React, {useState} from 'react'
-import { StyleSheet, Text, View, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, Alert } from 'react-native'
 import { Avatar, Button, Icon, Input } from 'react-native-elements'
 import CountryPicker from 'react-native-country-picker-modal'
-import { map, size } from "lodash";
+import { map, size, filter } from "lodash";
 
 import { loadImageFromGallery } from '../../utils/helpers';
 
@@ -56,6 +56,32 @@ function UploadImage( { toastRef, imagesSelected, setiImagesSelected } ){  //Cre
 
         setiImagesSelected([...imagesSelected, response.image])            //Finalmente guardamos la imagen seleccionada en el estado imagesSelected
     }
+
+    const removeImage = (image) =>{
+        Alert.alert(
+            "Eliminar imagen",
+            "¿estas seguro que deseas eliminar la imagén",
+            [
+                {
+                    text: "No",
+                    style: "cancel"
+
+                },
+                {
+                    text:"Si",
+                    onPress: ()=>{
+                        setiImagesSelected(
+                            filter(imagesSelected, (imgeUrl) =>imgeUrl !== image)   //por medio del metodo filter de lodash, guardamos en nuestro estado todas la imagenes menos la que seleccione a eliminar
+                        )
+                    }
+                }
+            ],
+            {
+                cancelable: true
+            }
+        )
+    }
+
     return (                                                               //Cuando usar o no las corchetes { } (DUDA)
         <ScrollView
             horizontal                                                     //Para decirle a el scroll que se va comportar de forma horizontal
@@ -78,6 +104,7 @@ function UploadImage( { toastRef, imagesSelected, setiImagesSelected } ){  //Cre
                         key={index}
                         style={styles.miniatureStyle}
                         source={{ uri : imageRestaurant }}
+                        onPress={()=> removeImage(imageRestaurant)}
                     />
                 ))
             }
