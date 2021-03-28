@@ -7,9 +7,8 @@ import MapView from 'react-native-maps';
 import uuid from 'random-uuid-v4'
 
 import  Modal  from "../../components/Modal";
-
 import { getCurrentLocation, loadImageFromGallery, validateEmail } from '../../utils/helpers';
-import { uploadImage } from '../../utils/actions';
+import { addDocumentWithoutId, getCurrentUser, uploadImage } from '../../utils/actions';
 
 const widthScreen = Dimensions.get("window").width        //La forma en como obtengo las dimensiones de la pantalla
 
@@ -30,11 +29,33 @@ export default function AddRestaurantForm({ toastRef, setLoading, navigation }) 
         }
 
         setLoading(true)
-        const response = await uploadImages()
-        console.log(response)
+        const responseUploadImages = await uploadImages()
+        const restaurant ={
+            name: formData.name,
+            address: formData.address,
+            description: formData.description,
+            callingCode: formData.callingCode,
+            phone: formData.phone,
+            location: locationRestaurant,
+            email: formData.email,
+            images: responseUploadImages,
+            rating: 0,
+            ratingTotal: 0,
+            quantityVoting: 0,
+            createAt: new Date(),
+            createBy: getCurrentUser().uid
+        }
+
+        const responseAddDocument = await addDocumentWithoutId("restaurants", restaurant)
         setLoading(false)
 
-        console.log("Fuck Yeahh !!")
+        if (!responseAddDocument.statusResponse) {
+            toastRef.current.show("Error al grabar el restaurante, por favor intenta más tarde.", 3000)
+            return
+        }
+
+        navigation.navigate("restaurants")              //Finalmente navegamos a la pantalla de restaurante
+
     }
 
     const uploadImages = async() =>{
