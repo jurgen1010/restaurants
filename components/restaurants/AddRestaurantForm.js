@@ -4,10 +4,12 @@ import { Avatar, Button, Icon, Input, Image } from 'react-native-elements'
 import CountryPicker from 'react-native-country-picker-modal'
 import { map, size, filter, isEmpty } from "lodash";
 import MapView from 'react-native-maps';
+import uuid from 'random-uuid-v4'
 
 import  Modal  from "../../components/Modal";
 
 import { getCurrentLocation, loadImageFromGallery, validateEmail } from '../../utils/helpers';
+import { uploadImage } from '../../utils/actions';
 
 const widthScreen = Dimensions.get("window").width        //La forma en como obtengo las dimensiones de la pantalla
 
@@ -22,13 +24,33 @@ export default function AddRestaurantForm({ toastRef, setLoading, navigation }) 
     const [isVisibleMap, setIsVisibleMap] = useState(false)
     const [locationRestaurant, setLocationRestaurant] = useState(null)
     
-    const addRestaurant = () =>{
+    const addRestaurant = async() =>{
         if (!validForm()) {
             return
         }
+
+        setLoading(true)
+        const response = await uploadImages()
+        console.log(response)
+        setLoading(false)
+
         console.log("Fuck Yeahh !!")
     }
 
+    const uploadImages = async() =>{
+        const imagesUrl = []
+        await Promise.all(                        //Cada que suba una imagen es un metodo asincrono por eso usamos el Promise.all()
+            map(imagesSelected, async(image) => { //Como no hacemos el retorno, podemos usar las llaves {}
+                 const response = await uploadImage(image, "restaurants", uuid())
+                 if (response.statusResponse) {
+                     imagesUrl.push(response.url) //Llenamos nuestro arreglo de imagenes para poderlas mostrar en pantalla
+                 }
+
+            })                                    // Vas ejecutar un metodo asincrono por cada imagen seleccionada y vas subir la image
+        )
+        return imagesUrl
+    }
+ 
     const validForm = () => {
         clearErrors()
         let isValid = true
@@ -59,11 +81,11 @@ export default function AddRestaurantForm({ toastRef, setLoading, navigation }) 
         }
 
         if (!locationRestaurant) {
-            toastRef.current.show("Debes localizar el restaurante en el mapa.", 3000)
-            isValid=false
-        }else if(size(imagesSelected) === 0){
-            toastRef.current.show("Debes de agregar al menos una imagen al restaurante.",3000)
-            isValid=false
+            toastRef.current.show("Debes de localizar el restaurante en el mapa.", 3000)
+            isValid = false
+        } else if(size(imagesSelected) === 0) {
+            toastRef.current.show("Debes de agregar al menos una imagen al restaurante.", 3000)
+            isValid = false
         }
 
         return isValid
@@ -107,7 +129,7 @@ export default function AddRestaurantForm({ toastRef, setLoading, navigation }) 
             <MapRestaurant
                 isVisibleMap={isVisibleMap}
                 setIsVisibleMap={setIsVisibleMap}
-                locationRestaurant={locationRestaurant}
+                setLocationRestaurant={setLocationRestaurant}
                 toastRef={toastRef}
             />
         </ScrollView>
