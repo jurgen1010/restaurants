@@ -17,12 +17,19 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.jurgen.restaurants"
     },
     "android": {
+      "package": "com.jurgen.restaurants",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
+      },
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCUrGS7HIAk5MIr18I8pz9s_QqVngLTL_8"
+        }
       },
       "permissions": [
         "CAMERA_ROLL",
