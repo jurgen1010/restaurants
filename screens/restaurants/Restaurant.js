@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import { Alert, StyleSheet, Text, View } from 'react-native'
-import { getDocumentById } from '../../utils/actions'
+import { Alert, Dimensions ,ScrollView, StyleSheet, Text } from 'react-native'
 
+
+import { getDocumentById } from '../../utils/actions'
 import Loading from '../../components/Loading'
+import CarouselImage from '../../components/CarouselImage'
+
+const widthScreen = Dimensions.get("window").width 
 
 export default function Restaurant({ navigation, route }) {
 
@@ -28,10 +32,19 @@ export default function Restaurant({ navigation, route }) {
 
     navigation.setOptions({ title: name })
     return (
-        <View>
+        <ScrollView style={styles.viewBody}>
+            <CarouselImage
+                images={restaurant.images}
+                height={250}
+                width={widthScreen}
+            />
             <Text>{restaurant.description}</Text>
-        </View>
+        </ScrollView>
     )
 }
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    viewBody:{
+        flex: 1
+    }
+})
