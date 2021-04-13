@@ -1,19 +1,21 @@
 import { size } from 'lodash'
 import React from 'react'
-import { ActivityIndicator } from 'react-native'
-import { TouchableOpacity } from 'react-native'
-import { FlatList, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, StyleSheet, Text, View, TouchableOpacity, FlatList } from 'react-native'
 import { Image } from 'react-native-elements'
+import { formatPhone } from '../../utils/helpers'
 
-export default function ListRestaurants({ restaurants, navigation }) {
-    return (
+
+export default function ListRestaurants({ restaurants, navigation, handleLoadMore }) {
+    return (                                
         <View>
             <FlatList
                 data={restaurants}
-                keyExtractor={(item, index) => index.toString() }
-                renderItem={(restaurant) => (                                        //Como tiene un retorno interno usamos los ( )
+                keyExtractor={(item, index) => index.toString()}
+                onEndReachedThreshold={0.5}
+                onEndReached={handleLoadMore}
+                renderItem={(restaurant) => (                                      //Como tiene un retorno interno usamos los ( )
                     <Restaurant restaurant={restaurant} navigation={navigation}/>
-                )}  
+                )}
             />
         </View>
     )
@@ -23,8 +25,12 @@ function Restaurant({ restaurant, navigation }){
     const { id, images, name, address, description, phone, callingCode} = restaurant.item                                    //La data del restaurant viene en una propiedad item cuando estamos usando un renderItem
     const imageRestaurant = images[0]
 
-    return (                                                           //TouchableOpacity para poder tocar el restaurante e ir al detalle del restaurante
-        <TouchableOpacity>                                           
+    const goRestaurant = () => {
+        navigation.navigate("restaurant", { id, name })                                     //El elemento que declaramos en en RestaurantStack y le pasamos parametros a la navegacion id, name del restaurante
+    }
+
+    return (                                                                  //TouchableOpacity para poder tocar el restaurante e ir al detalle del restaurante
+        <TouchableOpacity onPress={goRestaurant}>                                           
             <View style={styles.viewRestaurant}>   
                 <View style={styles.viewRestaurantImage}>
                     <Image
@@ -35,14 +41,14 @@ function Restaurant({ restaurant, navigation }){
                     />
                 </View>                      
                 <View>
-                    <Text style= {styles.restaurantTitle}>{name}</Text>
-                    <Text style= {styles.restaurantInformation}>{address}</Text>
-                    <Text style= {styles.restaurantInformation}>+{callingCode}-{phone}</Text>
-                    <Text style= {styles.restaurantDescription}>
+                <Text style={styles.restaurantTitle}>{name}</Text>
+                    <Text style={styles.restaurantInformation}>{address}</Text>
+                    <Text style={styles.restaurantInformation}>{formatPhone(callingCode, phone)}</Text>
+                    <Text style={styles.restaurantDescription}>
                         {
-                            size (description) >0
-                            ? `${description.substr(0, 60)}...`         //Usamos el template srtring para solo mostrar una pequeña parte de la descripcion
-                            : description
+                            size(description)>0
+                                ? `${description.substr(0, 60)}...`         //Usamos el template srtring para solo mostrar una pequeña parte de la descripcion
+                                : description
                         }
                     </Text>
                 </View>

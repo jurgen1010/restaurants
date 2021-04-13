@@ -6,7 +6,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { size } from 'lodash';
 
 import Loading from '../../components/Loading'
-import { getRestaurants } from '../../utils/actions';
+import { getMoreRestaurants, getRestaurants } from '../../utils/actions';
 import ListRestaurants from '../../components/restaurants/ListRestaurants';
 
 export default function Restaurants({ navigation }) {   //Haciendo destructuring puedo recibir la navegacion, sin necesidad de crear una constante
@@ -36,6 +36,20 @@ export default function Restaurants({ navigation }) {   //Haciendo destructuring
         }, [])
     )
 
+    const handleLoadMore = async() => {
+        if (!startRestaurant) {
+            return
+        }
+
+        setLoading(true)
+        const response = await getMoreRestaurants(limitRestaurants, startRestaurant)
+        if (response.statusResponse) {
+            setStartRestaurant(response.startRestaurant)
+            setRestaurants([...restaurants, ...response.restaurants])
+        }
+        setLoading(false)
+    }
+
     if (user ===null) {
         return <Loading isVisible={true} text="Cargando..."/>
     }
@@ -47,6 +61,7 @@ export default function Restaurants({ navigation }) {   //Haciendo destructuring
                     <ListRestaurants 
                         restaurants = {restaurants}
                         navigation = {navigation}
+                        handleLoadMore ={handleLoadMore}
                     />
                 ): (
                     <View style ={styles.noFoundView}>
