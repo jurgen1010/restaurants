@@ -9,6 +9,7 @@ import Loading from '../../components/Loading'
 import CarouselImage from '../../components/CarouselImage'
 import { formatPhone } from '../../utils/helpers'
 import MapRestaurant from '../../components/restaurants/MapRestaurant'
+import ListReviews from '../../components/restaurants/ListReviews'
 
 const widthScreen = Dimensions.get("window").width 
 
@@ -55,6 +56,10 @@ export default function Restaurant({ navigation, route }) {
                 address={restaurant.address}
                 email={restaurant.email}
                 phone={formatPhone(restaurant.callingCode, restaurant.phone)}
+            />
+            <ListReviews
+                navigation={navigation}
+                idRestaurant={restaurant.id}
             />
         </ScrollView>
     )
