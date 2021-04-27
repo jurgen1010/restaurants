@@ -3,6 +3,7 @@ import firebase from 'firebase'
 import 'firebase/firestore'
 
 import { fileToBlob } from './helpers'
+import { diffClamp } from 'react-native-reanimated'
 
 const db = firebase.firestore(firebaseApp)
 
@@ -206,5 +207,41 @@ export const getRestaurantReviews = async(id) => {
         result.error = error
     }
     console.log(result)
+    return result
+}
+
+export const getIsFavorite = async(idRestaurant) => {
+    const result = { statusResponse: true, error: null, isFavorite: false }
+    try {
+        const response = await db
+        .collection("favorites")
+        .where("idRestaurant", "==", idRestaurant)   
+        .where("idUser", "==", getCurrentUser().uid)
+        .get()         
+
+        result.isFavorite = response.docs.length > 0       //Si recupera registro es porque sabemos que el restaurante es favorito
+    } catch (error) {
+        result.statusResponse = false
+        result.error = error
+    }
+    return result
+}
+
+export const deleteFavorite = async(idRestaurant) => {
+    const result = { statusResponse: true, error: null }
+    try {
+        const response = await db
+            .collection("favorites")
+            .where("idRestaurant", "==", idRestaurant)   
+            .where("idUser", "==", getCurrentUser().uid)
+            .get()         
+        response.forEach(async(doc) =>{
+            const favoriteId= doc.id
+            await db.collection("favorites").doc(favoriteId).delete()               //Eliminamos el registro de favoritos
+        })
+    } catch (error) { 
+        result.statusResponse = false
+        result.error = error
+    }
     return result
 }
