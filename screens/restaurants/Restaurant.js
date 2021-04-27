@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useCallback } from 'react'
 import { Alert, Dimensions ,ScrollView, StyleSheet, Text, View } from 'react-native'
 import { map } from 'lodash'
 import { Icon, Rating,  ListItem } from 'react-native-elements'
+import { useFocusEffect } from '@react-navigation/native'
 
 
 import { getDocumentById } from '../../utils/actions'
@@ -19,17 +20,19 @@ export default function Restaurant({ navigation, route }) {
     const [restaurant, setRestaurant] = useState(null)
     const [activeSlide, setActiveSlide] = useState(0)
 
-    useEffect(() => {
-       (async() =>{
-            const response = await getDocumentById("restaurants", id)
-            if(response.statusResponse){
-                setRestaurant(response.document)
-            }else{
-                setRestaurant({})  //Sino tiene informacion declaramos un objeto vacio
-                Alert.alert("Ocurrió un problema cargando el restaurante, Intente más tarde.")
-            }
-       })()  //Doble () indica que sera autollamada
-    }, [])  //Vamos a ejecutar el useEffect cuando cargue la pantalla
+    useFocusEffect(
+        useCallback(() => {
+           (async() =>{
+                const response = await getDocumentById("restaurants", id)
+                if(response.statusResponse){
+                    setRestaurant(response.document)
+                }else{
+                    setRestaurant({})  //Sino tiene informacion declaramos un objeto vacio
+                    Alert.alert("Ocurrió un problema cargando el restaurante, Intente más tarde.")
+                }
+           })()  //Doble () indica que sera autollamada
+        }, [])  //Vamos a ejecutar el useEffect cuando cargue la pantalla
+    )
 
     if (!restaurant) {
         return <Loading isVisible={true} text="Cargando..."/>

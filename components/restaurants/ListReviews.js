@@ -13,27 +13,27 @@ export default function ListReviews({ navigation, idRestaurant }) {
 
     return (
         <View>
-            {
-                userLogged ?(
+             {
+                userLogged ? (
                     <Button
                         buttonStyle={styles.btnAddReview}
                         title="Escribe una opinión"
-                        titleStyle={styles.btnTitleAddReview}
-                        onPress={() => navigation.navigate("add-review-restaurant", { idRestaurant: idRestaurant })}
+                        titleStyle={styles.btnTitelAddReview}
+                        onPress={() => navigation.navigate("add-review-restaurant", { idRestaurant })}
                         icon={{
                             type: "material-community",
                             name: "square-edit-outline",
                             color: "#c42434"
                         }}
                     />
-                ): (
+                ) : (
                     <Text 
                         style={styles.mustLoginText}
-                        onPress={() =>navigation.navigate("login")}
+                        onPress={() => navigation.navigate("login")}
                     >
                         Para escribir una opinión es necesario estar logueado.{" "}
                         <Text style={styles.loginText}>
-                            Pulsa AQUÍ para iniciar sesión.
+                            Pusla AQUÍ para iniciar sesión.
                         </Text>
                     </Text>
                 )
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     btnAddReview: {
         backgroundColor: "transparent"
     },
-    btnTitleAddReview: {
+    btnTitelAddReview: {
         color: "#c42434"
     },
     mustLoginText: {
