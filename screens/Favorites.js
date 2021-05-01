@@ -6,7 +6,7 @@ import Toast from 'react-native-easy-toast'
 
 import firebase from 'firebase/app'
 import Loading from '../components/Loading'
-import { getFavorites } from '../utils/actions'
+import { deleteFavorite, getFavorites } from '../utils/actions'
 
 export default function Favorites({ navigation }) {
     const toastRef = useRef()
@@ -58,6 +58,7 @@ export default function Favorites({ navigation }) {
                                 setLoading={setLoading}
                                 toastRef={toastRef}
                                 navigation={navigation}
+                                setReloadData= {setReloadData}
                             />
                         )}
                     />
@@ -76,8 +77,39 @@ export default function Favorites({ navigation }) {
     )
 }
 
-function Restaurant({restaurant, setLoading, toastRef, navigation}){
+function Restaurant({restaurant, setLoading, toastRef, navigation, setReloadData }){
     const { id, name, images } = restaurant.item
+
+    const confirmRemoveFavorite = () => {
+        Alert.alert(
+            "Eliminar restautante de favoritos",
+            "¿Esta seguro de querer borrar el restaurante de favoritos?",
+            [
+                {
+                    text: "No",
+                    style: "cancel"
+                },
+                {
+                    text: "Si",
+                    onPress: removeFavorite
+                }
+            ],
+            { cancelable: false }
+        )      
+    }
+
+    const removeFavorite = async() => {
+        setLoading(true)
+        const response = await deleteFavorite(id)
+        setLoading(false)
+        if (response.statusResponse) {
+            setReloadData(true)
+            toastRef.current.show("Restaurante eliminado de favoritos.", 3000)
+        }else{
+            toastRef.current.show("Error al eliminar el restaurante de favoritos.", 3000)
+        }
+    }
+
     return(
         <View style={styles.restaurant}>
             <TouchableOpacity
@@ -100,6 +132,7 @@ function Restaurant({restaurant, setLoading, toastRef, navigation}){
                         color="#f00"
                         containerStyle={styles.favorite}
                         underlayColor="transparent"            //Color de fondo
+                        onPress={confirmRemoveFavorite}
                     />
                 </View>
             </TouchableOpacity>
