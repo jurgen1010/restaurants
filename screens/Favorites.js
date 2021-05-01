@@ -1,7 +1,7 @@
 import React, {useState , useCallback, useRef} from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert, ActivityIndicator } from 'react-native'
 import { useFocusEffect } from '@react-navigation/native'
-import { Button, Icon } from 'react-native-elements'
+import { Button, Icon, Image } from 'react-native-elements'
 import Toast from 'react-native-easy-toast'
 
 import firebase from 'firebase/app'
@@ -46,10 +46,41 @@ export default function Favorites({ navigation }) {
     }
 
     return (
-        <View>
-            <Text>Favorites</Text>
+        <View style={styles.viewBody}>
+            {
+                restaurants ? (
+                    <FlatList
+                        data={restaurants}
+                        keyExtractor={(item, index) => index.toString} //Para evitar que nos salga error porque cada elemento de la lista no sea unico
+                        renderItem={(restaurant) =>(                   //Usamos los () ya que es un return implicito
+                            <Restaurant
+                                restaurant={restaurant}
+                                setLoading={setLoading}
+                                toastRef={toastRef}
+                                navigation={navigation}
+                            />
+                        )}
+                    />
+                ):(
+                    <View style={styles.loaderRestaurant}>
+                        <ActivityIndicator size="large"/>
+                        <Text style={{ textAlign: "center"}}>
+                            Cargando Restaurantes...
+                        </Text>
+                    </View>
+                )
+            }
             <Toast  ref={toastRef} position="center" opacity={0.9}/>
             <Loading isVisible={loading} text="Por favor espere..."/>
+        </View>
+    )
+}
+
+function Restaurant({restaurant, setLoading, toastRef, navigation}){
+    const { id, name, images } = restaurant.item
+    return(
+        <View>
+            <Text>{name}</Text>
         </View>
     )
 }
@@ -82,4 +113,12 @@ function UserNoLogged({ navigation }){
     )
 }
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    viewBody: {
+        flex: 1,
+        backgroundColor: "#f2f2f2"
+    },
+    loaderRestaurant: {
+        marginVertical: 10
+    }
+})
