@@ -79,8 +79,30 @@ export default function Favorites({ navigation }) {
 function Restaurant({restaurant, setLoading, toastRef, navigation}){
     const { id, name, images } = restaurant.item
     return(
-        <View>
-            <Text>{name}</Text>
+        <View style={styles.restaurant}>
+            <TouchableOpacity
+                onPress={() =>navigation.navigate("restaurants", {
+                    screen: "restaurant",
+                    params: { id, name }
+                })}
+            >
+                <Image
+                    resizeMode={"cover"}
+                    style={styles.image}
+                    PlaceholderContent={<ActivityIndicator color="#fff"/>}
+                    source={{ uri: images[0] }}                 //Mostramos la imagen principal de restaurante
+                />
+                <View style={styles.info}>
+                    <Text style={styles.name}>{name}</Text>
+                    <Icon
+                        type="material-community"
+                        name="heart"
+                        color="#f00"
+                        containerStyle={styles.favorite}
+                        underlayColor="transparent"            //Color de fondo
+                    />
+                </View>
+            </TouchableOpacity>
         </View>
     )
 }
@@ -120,5 +142,33 @@ const styles = StyleSheet.create({
     },
     loaderRestaurant: {
         marginVertical: 10
+    },
+    restaurant: {
+        margin: 10
+    },
+    image: {
+        width: "100%",
+        height: 180
+    },
+    info: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "space-between",   //Para que el titulo y el icono se repartan el espacio
+        flexDirection: "row",
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        marginTop: -30,                     //Se sube unos pixeles dentro de la imagen
+        backgroundColor: "#fff"
+    },
+    name: {
+        fontWeight: "bold",
+        fontSize: 20
+    },
+    favorite: {
+        marginTop: -35,
+        backgroundColor: "#fff",
+        padding: 15,
+        borderRadius: 100
+
     }
 })
