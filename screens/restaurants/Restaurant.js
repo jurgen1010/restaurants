@@ -9,7 +9,7 @@ import Toast from 'react-native-easy-toast'
 import { getDocumentById, addDocumentWithoutId, getCurrentUser, getIsFavorite, deleteFavorite } from '../../utils/actions'
 import Loading from '../../components/Loading'
 import CarouselImage from '../../components/CarouselImage'
-import { callNumber, formatPhone, sendEmail } from '../../utils/helpers'
+import { callNumber, formatPhone, sendEmail, sendWhatsApp } from '../../utils/helpers'
 import MapRestaurant from '../../components/restaurants/MapRestaurant'
 import ListReviews from '../../components/restaurants/ListReviews'
 
@@ -124,6 +124,8 @@ export default function Restaurant({ navigation, route }) {
                 email={restaurant.email}
                 phone={formatPhone(restaurant.callingCode, restaurant.phone)}
                 currentUser={currentUser}
+                callingCode={restaurant.callingCode}
+                phoneNoFormat={restaurant.phone}
             />
             <ListReviews
                 navigation={navigation}
@@ -135,7 +137,7 @@ export default function Restaurant({ navigation, route }) {
     )
 }
 
-function RestaurantInfo({ name,  location, address, email,  phone, currentUser  }){
+function RestaurantInfo({ name,  location, address, email,  phone, currentUser, callingCode, phoneNoFormat  }){
     const listInfo = [
         { type: "addres", text: address, iconLeft: "map-marker" },
         { type: "phone", text: phone, iconLeft: "phone", iconRight: "whatsapp"},
@@ -155,7 +157,13 @@ function RestaurantInfo({ name,  location, address, email,  phone, currentUser  
     }
 
     const actioRight = (type) => {
-        console.log("derecha", type)
+        if (type == "phone") {
+            if (currentUser) {
+                sendWhatsApp(`${callingCode}${phoneNoFormat}`, `Soy ${currentUser.displayName}, estoy interesado en sus servicios`)
+            }else{
+                sendWhatsApp(`${callingCode}${phoneNoFormat}`, `Estoy interesado en sus servicios`)
+            }
+        }
     }
 
     
