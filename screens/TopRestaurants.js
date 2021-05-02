@@ -4,8 +4,9 @@ import { StyleSheet, Text, View } from 'react-native'
 
 import { getTopRestaurants } from '../utils/actions'
 import Loading from '../components/Loading'
+import ListTopRestaurant from '../components/ranking/ListTopRestaurant'
 
-export default function TopRestaurants() {
+export default function TopRestaurants({ navigation }) {
     const [restaurants, setRestaurants] = useState(null)
     const [loading, setLoading] = useState(false)
 
@@ -26,7 +27,10 @@ export default function TopRestaurants() {
     )
     return (
         <View>
-            <Text>TopRestaurants</Text>
+            <ListTopRestaurant
+                restaurants={restaurants}
+                navigation={navigation}
+            />
             <Loading isVisible={loading} text={"Por favor espere..."}/>
         </View>
     )
