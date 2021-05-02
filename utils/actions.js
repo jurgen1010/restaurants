@@ -1,4 +1,5 @@
 import { firebaseApp } from './firebase'
+import {FireSQL} from 'firesql'
 import firebase from 'firebase'
 import 'firebase/firestore'
 
@@ -7,6 +8,7 @@ import { diffClamp } from 'react-native-reanimated'
 import { map } from 'lodash'
 
 const db = firebase.firestore(firebaseApp)
+const fireSQL = new FireSQL(firebase.firestore(), {includeId: "id"})//Va incluir el id en las consultas que realicemos
 
 export const isUserLogged = () => { //Para validar si el usuario esta o no loggeado
    let isLogged = false
@@ -284,6 +286,17 @@ export const getTopRestaurants = async(limit) => {
             result.restaurants.push(restaurant)
         })
         result.isFavorite = response.docs.length > 0       
+    } catch (error) {
+        result.statusResponse = false
+        result.error = error
+    }
+    return result
+}
+
+export const searchRestaurant = async(criteria) => {
+    const result = { statusResponse: true, error: null, restaurants: [] }
+    try {
+        result.restaurants = await fireSQL.query(`SELECT * FROM  restaurants WHERE name LIKE '${criteria}%'`)  //Busqueme los restaurantes cuyo nombre comience por el criterio de busqueda que estoy enviando.
     } catch (error) {
         result.statusResponse = false
         result.error = error
