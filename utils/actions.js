@@ -2,10 +2,14 @@ import { firebaseApp } from './firebase'
 import {FireSQL} from 'firesql'
 import firebase from 'firebase'
 import 'firebase/firestore'
+import * as Notifications  from 'expo-notifications'
+import Constans from 'expo-constants'
 
 import { fileToBlob } from './helpers'
 import { diffClamp } from 'react-native-reanimated'
-import { map } from 'lodash'
+import { constant, map } from 'lodash'
+import { Alert } from 'react-native'
+import { Platform } from 'react-native'
 
 const db = firebase.firestore(firebaseApp)
 const fireSQL = new FireSQL(firebase.firestore(), {includeId: "id"})//Va incluir el id en las consultas que realicemos
@@ -297,6 +301,50 @@ export const searchRestaurant = async(criteria) => {
     const result = { statusResponse: true, error: null, restaurants: [] }
     try {
         result.restaurants = await fireSQL.query(`SELECT * FROM  restaurants WHERE name LIKE '${criteria}%'`)  //Busqueme los restaurantes cuyo nombre comience por el criterio de busqueda que estoy enviando.
+    } catch (error) {
+        result.statusResponse = false
+        result.error = error
+    }
+    return result
+}
+
+export const getToken = async() => {
+    if (!Constans.isDevice) {
+        Alert.alert("Debes utilizar un dispositivo físico para poder utilizar las notificaciones.")
+        return
+    }
+
+    const { status: existingStatus } = await Notifications.getPermissionsAsync()     //Obtener permisos para poder enviar las notifiaciones
+    let finalStatus = existingStatus 
+    if (existingStatus !== "granted") {                                             //Si el permiso es diferente a autorizado, entonces pedimos permisos
+        const { status } = await Notifications.requestPermissionsAsync()
+        finalStatus = status
+    }
+
+    if (finalStatus !== "granted") {
+        lert.alert("Debes dar permiso para acceder a las notificaciones.")
+        return
+    }
+
+    const token = (await Notifications.getExpoPushTokenAsync()).data
+
+    if (Platform.OS == "android") {
+        Notifications.setNotificationChannelAsync("default", {
+            name: "default",
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: "FF321F7C"
+        })
+    }
+
+    return token
+}
+
+
+export const addDocumentWithId = async(collection, data, doc) => {
+    const result = { statusResponse: true, error: null }
+    try {
+        await db.collection(collection).doc(doc).set(data)              //Agregar a una colección un documento pero yo soy quien va definir cual es el id de ese nuevo documento.          
     } catch (error) {
         result.statusResponse = false
         result.error = error

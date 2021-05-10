@@ -28,7 +28,7 @@ export default function Restaurant({ navigation, route }) {
 
     firebase.auth().onAuthStateChanged(user =>{
         user ? setUserLogged(true) : setUserLogged(false)
-        setCurrentUser(user)
+        setCurrentUser(user)                    //Obtenemos el user que esta logueado
     })
     
     navigation.setOptions({ title: name })
